@@ -13,7 +13,7 @@ for p in procs:
     output = array([line.split() for line in p.stdout.read().splitlines()], float)
     obj.append(output[:,2])
 
-obj = array(obj).mean(0)
+obj = array(obj).mean(0).reshape([20,20]).T
 
 r = arange(20) / 20. * 3
 t = arange(20) * 2*pi/20.
@@ -22,7 +22,6 @@ x = r * cos(t)
 y = r * sin(t)
 x = hstack([x, x[:,:1]])
 y = hstack([y, y[:,:1]])
-obj = obj.T
 obj = hstack([obj, obj[:,:1]])
 
 contour(x, y, obj)
