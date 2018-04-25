@@ -42,7 +42,7 @@ __device__ __forceinline__ ftype gaussian(ftype x)
 template<typename ftype>
 __device__ __forceinline__ ftype objective(ftype u[3], ftype s[2], int it, ftype dt, int ir, ftype dr)
 {
-    const double PI = 3.1415926;//atan2(1.0, 0.0) * 2;
+    const double PI = atan2(1.0, 0.0) * 2;
     ftype x = u[0];
     ftype y = u[1];
 
@@ -63,8 +63,7 @@ template<typename ftype, typename objType>
 __global__ void accumulate(ftype (*u)[3], ftype s[2], objType *obj,
                            int nt, int nr, ftype rmax, int steps)
 {
-    //const double PI = atan2(1.0, 0.0) * 2;
-    const double PI = 3.1415926;//atan2(1.0, 0.0) * 2;
+    const double PI = atan2(1.0, 0.0) * 2;
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     step(u[i], s, steps);
     ftype dr = rmax / nr;
@@ -102,7 +101,7 @@ void init(ftype (**u)[3], ftype ** s, ftype s1, ftype s2, int nBlocks, int threa
 
 int main(int argc, char * argv[])
 {
-    const int nBlocks = 10000;
+    const int nBlocks = 32;
     const int threadsPerBlock = 256;
 
     assert (argc == 7);
@@ -127,17 +126,14 @@ int main(int argc, char * argv[])
     ftype * objective;
     cudaMalloc(&objective, sizeof(ftype) * nr0 * nt0);
 
-    const int nRepeat = 10000;
+    const int nRepeat = 2048;
     for (int iRepeat = 0; iRepeat < nRepeat; ++iRepeat) {
         cudaMemset(objective, 0, sizeof(ftype) * nr0 * nt0);
-        const int nAccums = 10;
-        for (int i = 0; i < nAccums; ++i) {
-            accumulate<<<nBlocks, threadsPerBlock>>>(u, s, objective, nt0, nr0, rmax, 10);
-        }
+        accumulate<<<nBlocks, threadsPerBlock>>>(u, s, objective, nt0, nr0, rmax, 10);
         cudaMemcpy(objCPU, objective, sizeof(ftype) * nr0 * nt0, cudaMemcpyDeviceToHost);
     
         for (int i = 0; i < nt0 * nr0; ++i) {
-            objFinal[i] += objCPU[i] / nRepeat / nAccums / nBlocks / threadsPerBlock;
+            objFinal[i] += objCPU[i] / nRepeat / nBlocks / threadsPerBlock;
         }
     }
 
