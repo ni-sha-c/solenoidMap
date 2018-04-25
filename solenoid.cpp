@@ -69,9 +69,9 @@ __global__ void accumulate(ftype (*u)[3], ftype s[2], objType *obj,
     step(u[i], s, steps);
     ftype dr = rmax / nr;
     ftype dt = (2*PI) / nt;
-    for (int it = 0; it < nt; ++it) {
-        for (int ir = 0; ir < nr; ++ir) {
-            int ibin = it * nr + ir;
+    for (int ir = 0; ir < nr; ++ir) {
+        for (int it = 0; it < nt; ++it) {
+            int ibin = ir * nt + it;
             ftype obji = objective(u[i], s, it, dt, ir, dr);
             if (obji) atomicAdd(obj + ibin, obji);
         }
@@ -80,7 +80,7 @@ __global__ void accumulate(ftype (*u)[3], ftype s[2], objType *obj,
 
 typedef float ftype;
 
-void init(ftype (**u)[3], ftype ** s, int nBlocks, int threadsPerBlock)
+void init(ftype (**u)[3], ftype ** s, ftype s1, ftype s2, int nBlocks, int threadsPerBlock)
 {
     const int nSamples = nBlocks * threadsPerBlock;
     ftype (*uCPU)[3] = new ftype[nSamples][3];
@@ -93,7 +93,7 @@ void init(ftype (**u)[3], ftype ** s, int nBlocks, int threadsPerBlock)
     cudaMemcpy(*u, uCPU, sizeof(ftype) * nSamples * 3, cudaMemcpyHostToDevice);
     delete[] uCPU;
 
-    ftype sCPU[2] = {1.4, 0.0};
+    ftype sCPU[2] = {s1, s2};
     cudaMalloc(s, sizeof(ftype) * 2);
     cudaMemcpy(*s, sCPU, sizeof(ftype) * 2, cudaMemcpyHostToDevice);
 
@@ -102,10 +102,10 @@ void init(ftype (**u)[3], ftype ** s, int nBlocks, int threadsPerBlock)
 
 int main(int argc, char * argv[])
 {
-    const int nBlocks = 100;
+    const int nBlocks = 10000;
     const int threadsPerBlock = 256;
 
-    assert (argc == 5);
+    assert (argc == 7);
     int iDevice = atoi(argv[1]);
     if (cudaSetDevice(iDevice)) {
         fprintf(stderr, "error selecting %d\n", iDevice);
@@ -114,9 +114,11 @@ int main(int argc, char * argv[])
     int nt0 = atoi(argv[2]);
     int nr0 = atoi(argv[3]);
     ftype rmax = atof(argv[4]);
+	ftype s1 = atof(argv[5]);
+	ftype s2 = atof(argv[6]); 
 
     ftype (*u)[3], *s;
-    init(&u, &s, nBlocks, threadsPerBlock);
+    init(&u, &s, s1, s2,nBlocks, threadsPerBlock);
 
     ftype * objCPU = new ftype[nt0 * nr0];
     double * objFinal = new double[nt0 * nr0];
@@ -125,7 +127,7 @@ int main(int argc, char * argv[])
     ftype * objective;
     cudaMalloc(&objective, sizeof(ftype) * nr0 * nt0);
 
-    const int nRepeat = 1000;
+    const int nRepeat = 10000;
     for (int iRepeat = 0; iRepeat < nRepeat; ++iRepeat) {
         cudaMemset(objective, 0, sizeof(ftype) * nr0 * nt0);
         const int nAccums = 10;
