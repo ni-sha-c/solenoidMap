@@ -23,20 +23,22 @@ def computeObjRep(nt, nr, rmax, s1, s2, nrep):
     return mean(obj, 0)
 
 s1, s2 = 1.4, 0
+n = 50
 ds = 0.05
-dobjds1 = (computeObjRep(20, 20, 3, s1 + ds, s2, 10) -
-           computeObjRep(20, 20, 3, s1 - ds, s2, 10)) / (2 * ds)
-dobjds2 = (computeObjRep(20, 20, 3, s1, s2 + ds, 10) -
-           computeObjRep(20, 20, 3, s1, s2 - ds, 10)) / (2 * ds)
+dobjds1 = (computeObjRep(n, n, 3, s1 + ds, s2, 10) -
+           computeObjRep(n, n, 3, s1 - ds, s2, 10)) / (2 * ds)
+dobjds2 = (computeObjRep(n, n, 3, s1, s2 + ds, 10) -
+           computeObjRep(n, n, 3, s1, s2 - ds, 10)) / (2 * ds)
 
 savetxt("dPhids_r_fd.txt",dobjds1)
 savetxt("dPhids_t_fd.txt",dobjds2)
 
 '''
+n = 50
 dobjds1 = loadtxt("dPhids_r_fd.txt").T
 dobjds2 = loadtxt("dPhids_t_fd.txt").T
-r = arange(20) / 20. * 3
-t = arange(20) * 2*pi/20.
+r = arange(n) * 3. / n
+t = arange(n) * 2.*pi/n
 r, t = meshgrid(r, t, indexing='ij')
 x = r * cos(t)
 y = r * sin(t)
