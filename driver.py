@@ -3,10 +3,8 @@ from pylab import *
 from numpy import *
 
 
-def computeObj(nt, nr, rmax, s1, s2):
-    args = [str(nt), str(nr), str(rmax), str(s1), str(s2)]
-    print(args)
-    numDevices = 8
+def computeObj(s1, s2):
+    numDevices = 2
     procs = []
     for iDevice in range(numDevices):
         p = Popen(['./solenoid.exe', str(iDevice)] + args, stdout=PIPE)
@@ -16,22 +14,21 @@ def computeObj(nt, nr, rmax, s1, s2):
         lines = p.stdout.read().splitlines()
         output = array([line.split() for line in lines], float)
         obj.append(output[:,2])
-    return array(obj).mean(0).reshape([nt,nr]).T
+    return array(obj).mean(0)
 
-def computeObjRep(nt, nr, rmax, s1, s2, nrep):
-    obj = [computeObj(nt, nr, rmax, s1, s2) for i in range(nrep)]
+def computeObjRep(s1, s2, nrep):
+    obj = [computeObj(s1, s2) for i in range(nrep)]
     return mean(obj, 0)
 
-s1, s2 = 1.4, 0
-n = 50
+s1, s2 = 1, 0
 ds = 0.05
-dobjds1 = (computeObjRep(n, n, 3, s1 + ds, s2, 10) -
-           computeObjRep(n, n, 3, s1 - ds, s2, 10)) / (2 * ds)
-dobjds2 = (computeObjRep(n, n, 3, s1, s2 + ds, 10) -
-           computeObjRep(n, n, 3, s1, s2 - ds, 10)) / (2 * ds)
+dobjds1 = (computeObjRep(s1 + ds, s2, 100) -
+           computeObjRep(s1 - ds, s2, 100)) / (2 * ds)
+dobjds2 = (computeObjRep(s1, s2 + ds, 100) -
+           computeObjRep(s1, s2 - ds, 100)) / (2 * ds)
 
-savetxt("dPhids_r_fd.txt",dobjds1)
-savetxt("dPhids_t_fd.txt",dobjds2)
+savetxt("dJds1_fd.txt",dobjds1)
+savetxt("dJds2_fd.txt",dobjds2)
 
 '''
 n = 50
