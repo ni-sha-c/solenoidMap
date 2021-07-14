@@ -50,6 +50,7 @@ __global__ void accumulate(ftype (*u)[3], ftype s[2], objType *obj, int steps)
 }
 
 typedef float ftype;
+typedef float objType;
 
 void init(ftype (**u)[3], ftype ** s, ftype s1, ftype s2, int nBlocks, int threadsPerBlock)
 {
@@ -68,8 +69,17 @@ void init(ftype (**u)[3], ftype ** s, ftype s1, ftype s2, int nBlocks, int threa
     ftype sCPU[2] = {s1, s2};
     cudaMalloc(s, sizeof(ftype) * 2);
     cudaMemcpy(*s, sCPU, sizeof(ftype) * 2, cudaMemcpyHostToDevice);
+   
+    ftype (*uCPU2)[3] = new ftype[nSamples][3];
+    cudaMemcpy(uCPU2, *u, sizeof(ftype) *nSamples * 3, cudaMemcpyDeviceToHost);
+    cout << uCPU2[0][0] << '\n';
 
-    accumulate<<<nBlocks, threadsPerBlock>>>(*u, *s, (ftype*)0, 1000);
+ 
+    ftype (*uCPU1)[3] = new ftype[nSamples][3];
+    accumulate<<<nBlocks, threadsPerBlock>>>(*u, *s, (objType*)0, 100);
+    cudaMemcpy(uCPU1, *u, sizeof(ftype) *nSamples * 3, cudaMemcpyDeviceToHost);
+    cout << uCPU1[0][0] << '\n';
+
 }
 
 int main(int argc, char * argv[])
@@ -88,30 +98,25 @@ int main(int argc, char * argv[])
 
     ftype (*u)[3], *s;
     init(&u, &s, s1, s2, nBlocks, threadsPerBlock);
-    ftype (*uCPU)[3];
-	cudaDeviceSynchronize();
-    cudaMemcpy(uCPU, u, sizeof(ftype)* nBlocks * threadsPerBlock, cudaMemcpyDeviceToHost);
-
-	cout << "hello" << '\n';
-    cout << uCPU[0][0] << '\n';
-
-    ftype * objCPU;
-    double * objFinal;
+    ftype *objCPU;
+    ftype *objFinal;
     *objFinal = 0.0;
 
     ftype * objective;
     cudaMalloc(&objective, sizeof(ftype));
-
-    const int nRepeat = 2048;
+    /*
+    const int nRepeat = 1;
     for (int iRepeat = 0; iRepeat < nRepeat; ++iRepeat) {
-        cudaMemset(objective, 0, sizeof(ftype));
-        accumulate<<<nBlocks, threadsPerBlock>>>(u, s, objective, 10);
-        cudaMemcpy(objCPU, objective, sizeof(ftype), cudaMemcpyDeviceToHost);
+        cudaMemset(objective, 0.0, sizeof(ftype));
+
+      cout << "hello" << '\n';
+ 
+       cudaMemcpy(objCPU, objective, sizeof(ftype), cudaMemcpyDeviceToHost);
     
         
             *objFinal += *objCPU / nRepeat / nBlocks / threadsPerBlock;
         
      printf("%40.30f\n", *objFinal);
         
-	} 
+	} */
 }

@@ -1,5 +1,5 @@
-ARCH=52
-CUDA=-Wno-deprecated-gpu-targets -m64 -x cu -arch=sm_${ARCH} -lineinfo -Xptxas --warn-on-local-memory-usage -Xptxas --warn-on-spills --use_fast_math
+ARCH=70
+CUDA=-Wno-deprecated-gpu-targets -m64 -x cu -arch=sm_${ARCH}  -lineinfo -Xptxas --warn-on-local-memory-usage -Xptxas --warn-on-spills --use_fast_math
 
 default:	solenoid.exe
 
