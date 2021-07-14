@@ -3,7 +3,7 @@
 #include<cassert>
 #include<cstdlib>
 #include<algorithm>
-
+#include<iostream>
 using namespace std;
 
 template<typename ftype>
@@ -60,6 +60,7 @@ void init(ftype (**u)[3], ftype ** s, ftype s1, ftype s2, int nBlocks, int threa
         uCPU[i][1] = rand() / (ftype)RAND_MAX;
         uCPU[i][2] = rand() / (ftype)RAND_MAX;
     }
+   
     cudaMalloc(u, sizeof(ftype) * nSamples * 3);
     cudaMemcpy(*u, uCPU, sizeof(ftype) * nSamples * 3, cudaMemcpyHostToDevice);
     delete[] uCPU;
@@ -75,7 +76,6 @@ int main(int argc, char * argv[])
 {
     const int nBlocks = 32;
     const int threadsPerBlock = 256;
-
     assert (argc == 4);
     int iDevice = atoi(argv[1]);
     if (cudaSetDevice(iDevice)) {
@@ -84,9 +84,16 @@ int main(int argc, char * argv[])
     }
 	ftype s1 = atof(argv[2]);
 	ftype s2 = atof(argv[3]); 
+	
 
     ftype (*u)[3], *s;
     init(&u, &s, s1, s2, nBlocks, threadsPerBlock);
+    ftype (*uCPU)[3];
+	cudaDeviceSynchronize();
+    cudaMemcpy(uCPU, u, sizeof(ftype)* nBlocks * threadsPerBlock, cudaMemcpyDeviceToHost);
+
+	cout << "hello" << '\n';
+    cout << uCPU[0][0] << '\n';
 
     ftype * objCPU;
     double * objFinal;
