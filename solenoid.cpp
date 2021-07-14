@@ -86,11 +86,11 @@ int main(int argc, char * argv[])
 	ftype s2 = atof(argv[3]); 
 
     ftype (*u)[3], *s;
-    init(&u, &s, s1, s2,nBlocks, threadsPerBlock);
+    init(&u, &s, s1, s2, nBlocks, threadsPerBlock);
 
     ftype * objCPU;
     double * objFinal;
-    memset(objFinal, 0, sizeof(double));
+    *objFinal = 0.0;
 
     ftype * objective;
     cudaMalloc(&objective, sizeof(ftype));
@@ -106,5 +106,5 @@ int main(int argc, char * argv[])
         
      printf("%40.30f\n", *objFinal);
         
-    
+	} 
 }
