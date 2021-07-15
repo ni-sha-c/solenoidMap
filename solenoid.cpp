@@ -57,9 +57,9 @@ void init(ftype (**u)[3], ftype ** s, ftype s1, ftype s2, int nBlocks, int threa
     const int nSamples = nBlocks * threadsPerBlock;
     ftype (*uCPU)[3] = new ftype[nSamples][3];
     for (int i = 0; i < nSamples; ++i) {
-        uCPU[i][0] = 1.0; //rand() / (ftype)RAND_MAX;
-        uCPU[i][1] = 1.0; //rand() / (ftype)RAND_MAX;
-        uCPU[i][2] = 1.0; // rand() / (ftype)RAND_MAX;
+        uCPU[i][0] = rand() / (ftype)RAND_MAX;
+        uCPU[i][1] = rand() / (ftype)RAND_MAX;
+        uCPU[i][2] = rand() / (ftype)RAND_MAX;
     }
    
     cudaMalloc(u, sizeof(ftype) * nSamples * 3);
@@ -70,25 +70,11 @@ void init(ftype (**u)[3], ftype ** s, ftype s1, ftype s2, int nBlocks, int threa
     cudaMalloc(s, sizeof(ftype) * 2);
     cudaMemcpy(*s, sCPU, sizeof(ftype) * 2, cudaMemcpyHostToDevice);
    
-    ftype (*uCPU2)[3] = new ftype[nSamples][3];
-    cudaMemcpy(uCPU2, *u, sizeof(ftype) *nSamples * 3, cudaMemcpyDeviceToHost);
-    cout << uCPU2[0][0] << " " << uCPU2[0][1] << " " << uCPU2[0][2] << '\n';
-
 	ftype * objective;
     cudaMalloc(&objective, sizeof(ftype));
     cudaMemset(objective, 0.0, sizeof(ftype));
 
- 
-    ftype (*uCPU1)[3] = new ftype[nSamples][3];
-    accumulate<<<nBlocks, threadsPerBlock>>>(*u, *s, objective, 1);
-    cudaMemcpy(uCPU1, *u, sizeof(ftype) *nSamples * 3, cudaMemcpyDeviceToHost);
-    cout << uCPU1[0][0] << " " << uCPU1[0][1] << " " << uCPU1[0][2] << '\n';
-	ftype objCPU;
-    cudaMemcpy(&objCPU, objective, sizeof(ftype), cudaMemcpyDeviceToHost);
-
-    cout << objCPU << '\n';
-    delete [] uCPU1;
-    delete [] uCPU2;
+    accumulate<<<nBlocks, threadsPerBlock>>>(*u, *s, objective, 1000);
 
 }
 
@@ -108,25 +94,23 @@ int main(int argc, char * argv[])
 
     ftype (*u)[3], *s;
     init(&u, &s, s1, s2, nBlocks, threadsPerBlock);
-    ftype *objCPU;
+    ftype objCPU;
     double *objFinal = new double;
     memset(objFinal, 0, sizeof(double));
 
-    ftype * objective;
+    ftype *objective;
     cudaMalloc(&objective, sizeof(ftype));
-    /*
+    
     const int nRepeat = 1;
     for (int iRepeat = 0; iRepeat < nRepeat; ++iRepeat) {
         cudaMemset(objective, 0.0, sizeof(ftype));
+        accumulate<<<nBlocks, threadsPerBlock>>>(u, s, objective, 1);
 
-      cout << "hello" << '\n';
- 
-       cudaMemcpy(objCPU, objective, sizeof(ftype), cudaMemcpyDeviceToHost);
+      cudaMemcpy(&objCPU, objective, sizeof(ftype), cudaMemcpyDeviceToHost);
     
-        
-            *objFinal += *objCPU / nRepeat / nBlocks / threadsPerBlock;
+       *objFinal += objCPU / nRepeat / nBlocks / threadsPerBlock;
         
      printf("%40.30f\n", *objFinal);
         
-	} */
+	}
 }
