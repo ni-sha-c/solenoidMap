@@ -1,4 +1,5 @@
 ARCH=70
+CUDA_HOME=/usr/local/cuda-10.2
 CUDA=-Wno-deprecated-gpu-targets -m64 -x cu -arch=sm_${ARCH}  -lineinfo -Xptxas --warn-on-local-memory-usage -Xptxas --warn-on-spills --use_fast_math
 
 default:	solenoid.exe
