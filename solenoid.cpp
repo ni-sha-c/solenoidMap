@@ -80,16 +80,17 @@ void init(ftype (**u)[3], ftype ** s, ftype s1, ftype s2, int nBlocks, int threa
 
 int main(int argc, char * argv[])
 {
-    const int nBlocks = 32;
-    const int threadsPerBlock = 256;
-    assert (argc == 4);
+    assert (argc == 6);
     int iDevice = atoi(argv[1]);
     if (cudaSetDevice(iDevice)) {
         fprintf(stderr, "error selecting %d\n", iDevice);
         exit(-1);
     }
-	ftype s1 = atof(argv[2]);
-	ftype s2 = atof(argv[3]); 
+    int nBlocks = atoi(argv[2]);
+    int threadsPerBlock = atoi(argv[3]);
+    
+	ftype s1 = atof(argv[4]);
+	ftype s2 = atof(argv[5]); 
 	
 
     ftype (*u)[3], *s;
