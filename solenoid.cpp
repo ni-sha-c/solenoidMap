@@ -101,7 +101,7 @@ int main(int argc, char * argv[])
     ftype *objective;
     cudaMalloc(&objective, sizeof(ftype));
     
-    const int nRepeat = 1;
+    const int nRepeat = 2048;
     for (int iRepeat = 0; iRepeat < nRepeat; ++iRepeat) {
         cudaMemset(objective, 0.0, sizeof(ftype));
         accumulate<<<nBlocks, threadsPerBlock>>>(u, s, objective, 1);
@@ -109,8 +109,7 @@ int main(int argc, char * argv[])
       cudaMemcpy(&objCPU, objective, sizeof(ftype), cudaMemcpyDeviceToHost);
     
        *objFinal += objCPU / nRepeat / nBlocks / threadsPerBlock;
-        
+        }
+
      printf("%40.30f\n", *objFinal);
-        
-	}
 }
