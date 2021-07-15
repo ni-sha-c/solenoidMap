@@ -21,15 +21,15 @@ def computeObjRep(nB, nth, s1, s2, nrep):
     obj = [computeObj(nB, nth, s1, s2) for i in range(nrep)]
     return mean(obj, 0)
 
-s1, s2 = 1, 0.2
-ds = 0.05
+s1, s2 = 1, 0.
+ds = 0.01
 nrep = 1
-nBlocks = 32
-nthreadsPerBlock = 256
+nBlocks = 4
+nthreadsPerBlock = 4
 dobjds2 = (computeObjRep(nBlocks, nthreadsPerBlock, s1, s2 + ds, nrep) -
            computeObjRep(nBlocks, nthreadsPerBlock, s1, s2 - ds, nrep)) / (2 * ds)
-file = open("dJds2_fd.txt", "w")
-file.write("%d  %10.8f\n" %(nrep*nBlocks*nthreadsPerBlock*2048, dobjds2))
+file = open("dJds2_0.01.txt", "a")
+file.write("%d  %10.8f\n" %(nrep*nBlocks*nthreadsPerBlock*256, dobjds2))
 
 '''
 n = 50

@@ -55,8 +55,11 @@ typedef float objType;
 void init(ftype (**u)[3], ftype ** s, ftype s1, ftype s2, int nBlocks, int threadsPerBlock)
 {
     const int nSamples = nBlocks * threadsPerBlock;
+
     ftype (*uCPU)[3] = new ftype[nSamples][3];
     for (int i = 0; i < nSamples; ++i) {
+
+    	srand(time(0));
         uCPU[i][0] = rand() / (ftype)RAND_MAX;
         uCPU[i][1] = rand() / (ftype)RAND_MAX;
         uCPU[i][2] = rand() / (ftype)RAND_MAX;
@@ -102,7 +105,7 @@ int main(int argc, char * argv[])
     ftype *objective;
     cudaMalloc(&objective, sizeof(ftype));
     
-    const int nRepeat = 2048;
+    const int nRepeat = 256;
     for (int iRepeat = 0; iRepeat < nRepeat; ++iRepeat) {
         cudaMemset(objective, 0.0, sizeof(ftype));
         accumulate<<<nBlocks, threadsPerBlock>>>(u, s, objective, 1);
