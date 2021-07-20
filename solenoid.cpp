@@ -105,10 +105,10 @@ int main(int argc, char * argv[])
     ftype *objective;
     cudaMalloc(&objective, sizeof(ftype));
     
-    const int nRepeat = 256;
+    const int nRepeat = 32;
     for (int iRepeat = 0; iRepeat < nRepeat; ++iRepeat) {
         cudaMemset(objective, 0.0, sizeof(ftype));
-        accumulate<<<nBlocks, threadsPerBlock>>>(u, s, objective, 1);
+        accumulate<<<nBlocks, threadsPerBlock>>>(u, s, objective, 10);
 
       cudaMemcpy(&objCPU, objective, sizeof(ftype), cudaMemcpyDeviceToHost);
     

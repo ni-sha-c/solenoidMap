@@ -22,14 +22,14 @@ def computeObjRep(nB, nth, s1, s2, nrep):
     return mean(obj, 0)
 
 s1, s2 = 1, 0.
-ds = 0.01
+ds = 0.05
 nrep = 1
 nBlocks = 4
 nthreadsPerBlock = 4
 dobjds2 = (computeObjRep(nBlocks, nthreadsPerBlock, s1, s2 + ds, nrep) -
            computeObjRep(nBlocks, nthreadsPerBlock, s1, s2 - ds, nrep)) / (2 * ds)
-file = open("dJds2_0.01.txt", "a")
-file.write("%d  %10.8f\n" %(nrep*nBlocks*nthreadsPerBlock*256, dobjds2))
+file = open("data/dJds2_0.05.txt", "a")
+file.write("%d  %10.8f\n" %(nrep*nBlocks*nthreadsPerBlock*32, dobjds2))
 
 '''
 n = 50
